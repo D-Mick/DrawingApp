@@ -1,7 +1,7 @@
 # DrawingApp
 A kotlin project
 
-Views
-Coroutines
-Share
-OutPutStreams
+-Views
+-Coroutines
+-Share
+-OutPutStreams
