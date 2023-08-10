@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.view.View
 import android.Manifest
 import android.app.AlertDialog
+import android.content.Intent
+import android.provider.MediaStore
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
@@ -19,23 +21,41 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
     private var mImageButtonCurrentPaint: ImageButton? = null
+    // create an activity result launcher to open an intent
+    private val openGalleryLauncher: ActivityResultLauncher<Intent> =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            result ->
+            // get the returned result from the lambda and check the result code and the data returned
+            if(result.resultCode == RESULT_OK && result.data != null){
+                // process the data
+                // if the data is not null, set the image uri received
+                binding.ivBackground.setImageURI(result.data?.data)
+            }
+        }
 
+    /** create an ActivityResultLauncher with MultiplePermissions since we are requesting
+     * both read and write
+     */
     private val requestPermission: ActivityResultLauncher<Array<String>> =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
             permissions.entries.forEach {
                 val perMissionName = it.key
                 val isGranted = it.value
                 // if permission is granted show a toast and perform operation
-                if (isGranted ) {
+                if (isGranted) {
                     Toast.makeText(
                         this@MainActivity,
                         "Permission granted now you can read the storage files.",
                         Toast.LENGTH_LONG
                     ).show()
-                    //perform operation
+                    // create an intent to pick image from external storage
+                    val pickGalleryIntent =
+                        Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+                    // using the intent launcher created above launch the pick intent
+                    openGalleryLauncher.launch(pickGalleryIntent)
                 } else {
                     // Displaying another toast if permission is not granted and this time focus on
-                    //    Read external storage
+                    // Read external storage
                     if (perMissionName == Manifest.permission.READ_EXTERNAL_STORAGE)
                         Toast.makeText(
                             this@MainActivity,
@@ -74,7 +94,7 @@ class MainActivity : AppCompatActivity() {
      * and sets the brush/eraser sizes to the new values
      * depending on user selection.
      */
-    private fun showBrushSizeChooserDialog(){
+    private fun showBrushSizeChooserDialog() {
         var brushDialog = Dialog(this)
         brushDialog.setContentView(R.layout.dialog_brush_size)
         brushDialog.setTitle("Brush size:")
@@ -104,7 +124,7 @@ class MainActivity : AppCompatActivity() {
      * This method is called when user click on any of the color selection
      */
     fun paintClicked(view: View) {
-        if(view !== mImageButtonCurrentPaint){
+        if (view !== mImageButtonCurrentPaint) {
             val imageButton = view as ImageButton
             val colorTag = imageButton.tag.toString()
 
@@ -126,18 +146,20 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun requestStoragePermission(){
+    private fun requestStoragePermission() {
         // Check if the permission was denied and show rationale
         if (
             ActivityCompat.shouldShowRequestPermissionRationale(
                 this,
-                Manifest.permission.READ_EXTERNAL_STORAGE)
-        ){
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            )
+        ) {
             // call the rationale dialog to tell the user why they need to allow permission request
-            showRationaleDialog("Drawing App","Drawing App " +
-                    "needs to Access Your External Storage")
-        }
-        else {
+            showRationaleDialog(
+                "Drawing App", "Drawing App " +
+                        "needs to Access Your External Storage"
+            )
+        } else {
             // You can directly ask for the permission.
             // if it has not been denied then request for permission
             //  The registered ActivityResultCallback gets the result of this request.
