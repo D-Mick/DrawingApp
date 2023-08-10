@@ -141,6 +141,12 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
         mDrawPaint!!.strokeWidth = mBrushSize
     }
 
+    /**
+     * This function is called when the user desires a color change.
+     * This functions sets the color of a store to selected color and able to draw on view using that color.
+     *
+     * @param newColor
+     */
     fun setPaintColor(newColor: String){
         color = Color.parseColor(newColor)
         mDrawPaint!!.color = color
