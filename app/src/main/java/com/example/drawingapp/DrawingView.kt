@@ -18,8 +18,6 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
     private var mBrushSize: Float =
         0.toFloat() // A variable for stroke/brush size to draw on the canvas.
     private var color = Color.BLACK // A variable to hold a color of the stroke.
-    private var canvas: Canvas? = null
-
     /**
      * A variable for canvas which will be initialized later and used.
      *
@@ -28,10 +26,26 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
      * Path, text, Bitmap), and a paint (to describe the colors and styles for the
      * drawing)
      */
+    private var canvas: Canvas? = null
+
     private var mPaths = ArrayList<CustomPath>() // ArrayList for Paths
+    private var mUndoPaths = ArrayList<CustomPath>() // ArrayList for Undo Paths
 
     init {
         setUpDrawing()
+    }
+
+    /**
+     * This function is called when the user selects the undo
+     * command from the application. This function removes the
+     * last stroke input by the user depending on the
+     * number of times undo has been activated.
+     */
+    fun onClickUndo(){
+        if(mPaths.size > 0){
+            mUndoPaths.add(mPaths.removeAt(mPaths.size - 1))
+            invalidate() // Invalidate the whole view. If the view is visible
+        }
     }
 
     /**
