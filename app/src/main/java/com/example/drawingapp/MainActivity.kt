@@ -3,6 +3,7 @@ package com.example.drawingapp
 import android.app.Dialog
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.widget.ImageButton
 import androidx.core.content.ContextCompat
 import androidx.core.view.get
@@ -10,8 +11,6 @@ import com.example.drawingapp.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-
-    private var drawingView: DrawingView? = null
 
     private var mImageButtonCurrentPaint: ImageButton? = null
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,5 +60,31 @@ class MainActivity : AppCompatActivity() {
         }
 
         brushDialog.show()
+    }
+
+    /**
+     * This method is called when user click on any of the color selection
+     */
+    fun paintClicked(view: View) {
+        if(view !== mImageButtonCurrentPaint){
+            val imageButton = view as ImageButton
+            val colorTag = imageButton.tag.toString()
+
+            // Set the selected color to the paint color to use in our canvas
+            binding.drawingView.setPaintColor(colorTag)
+
+            // Set the pressed view/color background to pressed so we can see that it has been selected
+            imageButton.setImageDrawable(
+                ContextCompat.getDrawable(this, R.drawable.pallet_pressed)
+            )
+
+            //Set the old pressed view/color background to unpressed/default
+            mImageButtonCurrentPaint?.setImageDrawable(
+                ContextCompat.getDrawable(this, R.drawable.pallet_normal)
+            )
+
+            //Set the current view to the old view
+            mImageButtonCurrentPaint = view
+        }
     }
 }
