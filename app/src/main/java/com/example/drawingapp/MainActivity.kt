@@ -31,6 +31,8 @@ import java.io.FileOutputStream
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
+    private var customDialog: Dialog? = null
+
     private var mImageButtonCurrentPaint: ImageButton? = null
 
     // create an activity result launcher to open an intent
@@ -105,6 +107,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.ibSave.setOnClickListener {
             if(isReadStorageAllowed()){
+                showCustomDialog()
                 lifecycleScope.launch {
                     saveBitmapFile(getBitmapFromView(binding.flDrawingViewContainer))
                 }
@@ -310,6 +313,7 @@ class MainActivity : AppCompatActivity() {
                     result = f.absolutePath // The file absolute path is return as a result.
                     //We switch from io to ui thread to show a toast
                     runOnUiThread {
+                        cancelProgressDialog()
                         if (result.isNotEmpty()) {
                             Toast.makeText(
                                 this@MainActivity,
@@ -331,5 +335,23 @@ class MainActivity : AppCompatActivity() {
             }
         }
         return result
+    }
+
+    private fun showCustomDialog(){
+        customDialog = Dialog(this)
+
+        customDialog?.setContentView(R.layout.dialog_custom_progress)
+
+        customDialog?.show()
+    }
+
+    /** Todo 3: create function to cancel dialog
+     * This function is used to dismiss the progress dialog if it is visible to user.
+     */
+    private fun cancelProgressDialog() {
+        if (customDialog != null) {
+            customDialog?.dismiss()
+            customDialog = null
+        }
     }
 }
